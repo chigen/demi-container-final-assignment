@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: inventory-service
-        image: inventory-service:latest
+        image: ghcr.io/${GITHUB_REPOSITORY}/inventory-service:latest
         ports:
         - containerPort: 8081
         resources:
