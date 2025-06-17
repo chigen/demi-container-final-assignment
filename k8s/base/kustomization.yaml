@@ -10,9 +10,9 @@ resources:
   - configmap.yaml
   - secret.yaml
   - aws-secret.yaml
-  - user-service-deployment.yaml
-  - user-service-service.yaml
-  - product-service-deployment.yaml
-  - product-service-service.yaml
-  - promotion-service-deployment.yaml
-  - promotion-service-service.yaml 
+  # - user-service-deployment.yaml
+  # - user-service-service.yaml
+  # - product-service-deployment.yaml
+  # - product-service-service.yaml
+  # - promotion-service-deployment.yaml
+  # - promotion-service-service.yaml 
