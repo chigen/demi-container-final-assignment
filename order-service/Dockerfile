@@ -1,24 +1,19 @@
-FROM eclipse-temurin:17-jdk
+FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copy the Maven wrapper and pom files
-COPY mvnw .
-COPY .mvn .mvn
+# Copy the parent pom and service pom
 COPY pom.xml .
 COPY order-service/pom.xml order-service/
 
-# Make mvnw executable
-RUN chmod +x mvnw
-
 # Download dependencies
-RUN ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Copy source code
 COPY order-service/src order-service/src
 
 # Build the application
-RUN ./mvnw clean package -pl order-service -am -DskipTests
+RUN mvn clean package -pl order-service -am -DskipTests
 
 # Create runtime image
 FROM eclipse-temurin:17-jre
@@ -26,7 +21,7 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copy the built jar from the build stage
-COPY --from=0 /app/order-service/target/*.jar app.jar
+COPY --from=build /app/order-service/target/*.jar app.jar
 
 # Expose port
 EXPOSE 8080

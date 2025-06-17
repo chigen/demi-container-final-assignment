@@ -41,7 +41,7 @@ jobs:
       - name: Build and push Docker images
         run: |
           for service in inventory-service order-service; do
-            docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }} ./$service
+            docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }} -f $service/Dockerfile .
             docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}
           done
 
