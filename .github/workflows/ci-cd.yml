@@ -40,7 +40,7 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          for service in inventory-service order-service; do
+          for service in inventory-service; do
             docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }} -f $service/Dockerfile .
             docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}
           done
@@ -65,7 +65,7 @@ jobs:
       - name: Deploy to EKS
         run: |
           # Update image tags in k8s manifests
-          for service in inventory-service order-service; do
+          for service in inventory-service; do
             sed -i "s|image:.*$service.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}|" k8s/base/$service-deployment.yaml
           done
           
