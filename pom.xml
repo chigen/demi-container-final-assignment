@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>order-service</module>
+        <!-- <module>order-service</module> -->
         <module>inventory-service</module>
     </modules>
 
