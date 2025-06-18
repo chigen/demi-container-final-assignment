@@ -2,7 +2,7 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, develop ]
   pull_request:
     branches: [ main ]
 
@@ -42,14 +42,21 @@ jobs:
 
       - name: Build and push Docker images
         run: |
-          for service in inventory-service; do
+          for service in inventory-service order-service; do
+            # Build and push with commit SHA tag
             docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }} -f $service/Dockerfile .
             docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}
+            
+            # Also tag and push as latest
+            docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:latest
+            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:latest
           done
 
-  # deploy:
+  # deploy-dev:
   #   needs: build-and-push
   #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/develop'
+  #   environment: development
   #   steps:
   #     - name: Checkout repository
   #       uses: actions/checkout@v4
@@ -64,12 +71,41 @@ jobs:
   #     - name: Update kubeconfig
   #       run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-  #     - name: Deploy to EKS
+  #     - name: Deploy to Development Environment
   #       run: |
-  #         # Update image tags in k8s manifests
-  #         for service in inventory-service; do
-  #           sed -i "s|image:.*$service.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}|" k8s/base/$service-deployment.yaml
+  #         # Update image tags in dev overlay
+  #         for service in inventory-service order-service; do
+  #           yq eval ".images[] |= select(.name == \"${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service\") .newTag = \"${{ github.sha }}\"" -i k8s/overlays/dev/kustomization.yaml
   #         done
           
-  #         # Apply k8s manifests
-  #         kubectl apply -k k8s/base 
+  #         # Apply k8s manifests using kustomize for dev environment
+  #         kubectl apply -k k8s/overlays/dev
+
+  # deploy-prod:
+  #   needs: build-and-push
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'
+  #   environment: production
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
+
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ env.AWS_REGION }}
+
+  #     - name: Update kubeconfig
+  #       run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+  #     - name: Deploy to Production Environment
+  #       run: |
+  #         # Update image tags in prod overlay
+  #         for service in inventory-service order-service; do
+  #           yq eval ".images[] |= select(.name == \"${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service\") .newTag = \"${{ github.sha }}\"" -i k8s/overlays/prod/kustomization.yaml
+  #         done
+          
+  #         # Apply k8s manifests using kustomize for prod environment
+  #         kubectl apply -k k8s/overlays/prod

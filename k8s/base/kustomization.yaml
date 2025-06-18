@@ -14,3 +14,9 @@ resources:
   # - product-service-service.yaml
   # - promotion-service-deployment.yaml
   # - promotion-service-service.yaml 
+
+images:
+  - name: ghcr.io/chigen/demi-container-final-assignment/inventory-service
+    newTag: latest
+  - name: ghcr.io/chigen/demi-container-final-assignment/order-service
+    newTag: latest 
