@@ -6,5 +6,26 @@
       "default": true
     }
   ],
-  "java.compile.nullAnalysis.mode": "automatic"
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.project.sourcePaths": [
+    "inventory-service/src/main/java",
+    "order-service/src/main/java"
+  ],
+  "java.project.outputPath": "target/classes",
+  "java.project.referencedLibraries": [
+    "lib/**/*.jar"
+  ],
+  "java.completion.enabled": true,
+  "java.signatureHelp.enabled": true,
+  "java.hover.enabled": true,
+  "java.format.enabled": true,
+  "java.format.onType.enabled": true,
+  "java.sources.organizeImports.starThreshold": 99,
+  "java.sources.organizeImports.staticStarThreshold": 99,
+  "java.maven.downloadSources": true,
+  "java.maven.downloadJavadoc": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.import.maven.enabled": true,
+  "java.import.gradle.enabled": false,
+  "java.server.launchMode": "Standard"
 }

@@ -10,7 +10,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>order-service</module>
+        <!-- <module>order-service</module> -->
+        <module>inventory-service</module>
     </modules>
 
     <properties>
@@ -102,6 +103,15 @@
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <version>${spring-boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
