@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
@@ -47,7 +47,7 @@ management:
 
 logging:
   level:
-    com.example.inventoryservice: DEBUG
+    com.example.orderservice: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE 
