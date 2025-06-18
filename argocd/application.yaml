@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/${GITHUB_REPOSITORY}.git
+    repoURL: https://github.com/chigen/demi-container-final-assignment.git
     targetRevision: HEAD
     path: k8s/base
   destination:
@@ -16,3 +16,5 @@ spec:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
