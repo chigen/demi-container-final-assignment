@@ -2,10 +2,13 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-COPY . .
+COPY pom.xml .
+COPY inventory-service/pom.xml inventory-service/
 
 # Download dependencies
 RUN mvn dependency:go-offline -B
+
+COPY inventory-service/src inventory-service/src
 
 RUN mvn clean package -pl inventory-service -am -DskipTests
 

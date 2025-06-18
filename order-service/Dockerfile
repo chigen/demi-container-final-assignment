@@ -2,9 +2,12 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-COPY . .
+COPY pom.xml .
+COPY order-service/pom.xml order-service/
 
 RUN mvn dependency:go-offline -B
+
+COPY order-service/src order-service/src
 
 RUN mvn clean package -pl order-service -am -DskipTests
 
