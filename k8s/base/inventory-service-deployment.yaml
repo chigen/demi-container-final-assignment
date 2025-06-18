@@ -17,9 +17,12 @@ spec:
     spec:
       containers:
       - name: inventory-service
-        image: ghcr.io/${GITHUB_REPOSITORY}/inventory-service:latest
+        image: ghcr.io/chigen/demi-container-final-assignment/inventory-service:latest
         ports:
         - containerPort: 8081
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: "default"
         resources:
           requests:
             memory: "256Mi"

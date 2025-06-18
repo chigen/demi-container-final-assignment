@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: demi
+  labels:
+    app: order-processing-system
+data:
+  # Order Service Configuration (External API Gateway)
+  order-service.server.port: "8080"  # external access port
+  order-service.spring.application.name: "order-service"
+  order-service.spring.datasource.url: "jdbc:h2:mem:order_db"
+  order-service.spring.datasource.username: "sa"
+  order-service.spring.datasource.password: ""
+  order-service.spring.datasource.driver-class-name: "org.h2.Driver"
+  order-service.spring.jpa.hibernate.ddl-auto: "create-drop"
+  order-service.spring.jpa.show-sql: "true"
+  order-service.spring.jpa.properties.hibernate.dialect: "org.hibernate.dialect.H2Dialect"
+  order-service.spring.jpa.properties.hibernate.format_sql: "true"
+  order-service.spring.jpa.defer-datasource-initialization: "true"
+  order-service.spring.sql.init.mode: "always"
+  order-service.spring.h2.console.enabled: "true"
+  order-service.spring.h2.console.path: "/h2-console"
+  order-service.management.endpoints.web.exposure.include: "health,info"
+  order-service.management.endpoint.health.show-details: "always"
+  order-service.logging.level.com.example.orderservice: "DEBUG"
+  order-service.logging.level.org.springframework.web: "DEBUG"
+  order-service.logging.level.org.hibernate.SQL: "DEBUG"
+
+  # Inventory Service Configuration (Internal Service)
+  inventory-service.server.port: "8081"  # internal service port
+  inventory-service.spring.application.name: "inventory-service"
+  inventory-service.spring.datasource.url: "jdbc:h2:mem:inventory_db"
+  inventory-service.spring.datasource.username: "sa"
+  inventory-service.spring.datasource.password: ""
+  inventory-service.spring.datasource.driver-class-name: "org.h2.Driver"
+  inventory-service.spring.jpa.hibernate.ddl-auto: "create-drop"
+  inventory-service.spring.jpa.show-sql: "true"
+  inventory-service.spring.jpa.properties.hibernate.dialect: "org.hibernate.dialect.H2Dialect"
+  inventory-service.spring.jpa.properties.hibernate.format_sql: "true"
+  inventory-service.spring.jpa.defer-datasource-initialization: "true"
+  inventory-service.spring.sql.init.mode: "always"
+  inventory-service.spring.h2.console.enabled: "true"
+  inventory-service.spring.h2.console.path: "/h2-console"
+  inventory-service.management.endpoints.web.exposure.include: "health,info"
+  inventory-service.management.endpoint.health.show-details: "always"
+  inventory-service.logging.level.com.example.inventoryservice: "DEBUG"
+  inventory-service.logging.level.org.springframework.web: "DEBUG"
+  inventory-service.logging.level.org.hibernate.SQL: "DEBUG"
+
+  # Service Communication URLs
+  service.inventory.url: "http://inventory-service:8081"  # internal service call
+  # service.promotion.url: "http://promotion-service:8085"
+  # service.user.url: "http://user-service:8083"
+  # service.product.url: "http://product-service:8084"
+
+  # Application Properties (YAML format)
+  application.yml: |
+    # Global application configuration
+    spring:
+      profiles:
+        active: default
+    
+    # Service discovery configuration
+    service:
+      inventory:
+        url: http://inventory-service:8081  # internal service call
+      # promotion:
+      #   url: http://promotion-service:8085
+      # user:
+      #   url: http://user-service:8083
+      # product:
+      #   url: http://product-service:8084
+    
+    # Logging configuration
+    logging:
+      level:
+        root: INFO
+        com.example: DEBUG
+        org.springframework.web: DEBUG
+        org.hibernate.SQL: DEBUG
+    
+    # Management configuration
+    management:
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics
+      endpoint:
+        health:
+          show-details: always
