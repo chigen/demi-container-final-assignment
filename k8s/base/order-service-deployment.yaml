@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: order-service
-        image: ghcr.io/chigen/demi-container-final-assignment/order-service:latest
+        image: ghcr.io/chigen/demi-container-final-assignment/order-service:3f60fa72484f2fb4f10a7ad5eaac63e4c530f82b
         ports:
         - containerPort: 8080
         env:
