@@ -24,7 +24,7 @@ spec:
       # - name: ghcr-token
       containers:
       - name: inventory-service
-        image: ghcr.io/chigen/inventory-service:5bea7f9e
+        image: ghcr.io/chigen/inventory-service:664b1e4b
         ports:
         - containerPort: 8081
         env:
