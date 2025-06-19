@@ -6,6 +6,7 @@ metadata:
   labels:
     app: inventory-service
 spec:
+  revisionHistoryLimit: 2  # Keep only 2 old ReplicaSets
   replicas: 2
   selector:
     matchLabels:
