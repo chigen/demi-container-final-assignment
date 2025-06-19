@@ -15,7 +15,7 @@ public class Order {
     private Long userId;
 
     @Column(nullable = false)
-    private Long itemId;
+    private String itemId;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -30,7 +30,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long userId, Long itemId, Integer quantity, BigDecimal totalPrice) {
+    public Order(Long userId, String itemId, Integer quantity, BigDecimal totalPrice) {
         this.userId = userId;
         this.itemId = itemId;
         this.quantity = quantity;
@@ -54,11 +54,11 @@ public class Order {
         this.userId = userId;
     }
 
-    public Long getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(Long itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 

@@ -39,41 +39,53 @@ public class OrderService {
         log.info("Creating order for user: {}, item: {}, quantity: {}",
                 request.getUserId(), request.getItemId(), request.getQuantity());
 
-        // Reserve inventory
-        ReserveInventoryRequest inventoryRequest = new ReserveInventoryRequest();
-        inventoryRequest.setItemId(request.getItemId().toString());
-        inventoryRequest.setQuantity(request.getQuantity());
+        try {
+            // Reserve inventory
+            ReserveInventoryRequest inventoryRequest = new ReserveInventoryRequest();
+            inventoryRequest.setItemId(request.getItemId());
+            inventoryRequest.setQuantity(request.getQuantity());
 
-        ReserveInventoryResponse inventoryResponse = inventoryServiceClient.reserveInventory(inventoryRequest);
+            ReserveInventoryResponse inventoryResponse = inventoryServiceClient.reserveInventory(inventoryRequest);
 
-        if (!inventoryResponse.isSuccess()) {
-            throw new RuntimeException("Failed to reserve inventory for item: " + request.getItemId() +
-                    " - " + inventoryResponse.getMessage());
+            if (!inventoryResponse.isSuccess()) {
+                log.error("Failed to reserve inventory for item: {} - {}",
+                        request.getItemId(), inventoryResponse.getMessage());
+                throw new RuntimeException("Failed to reserve inventory for item: " + request.getItemId() +
+                        " - " + inventoryResponse.getMessage());
+            }
+
+            log.info("Successfully reserved {} units for item: {}",
+                    inventoryResponse.getReservedQuantity(), request.getItemId());
+
+            // Calculate total price (for now, using a simple calculation)
+            // In a real application, you would get the price from the product catalog
+            // service
+            BigDecimal unitPrice = BigDecimal.valueOf(10.00); // Placeholder price
+            BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(request.getQuantity()));
+
+            // Apply promotion if available - commented out since promotion service is not
+            // implemented yet
+            // BigDecimal discount = promotionServiceClient.applyPromotion(
+            // request.getUserId(), request.getItemId(), request.getQuantity());
+            // totalPrice = totalPrice.subtract(discount);
+
+            // Create and save the order
+            Order order = new Order();
+            order.setUserId(request.getUserId());
+            order.setItemId(request.getItemId());
+            order.setQuantity(request.getQuantity());
+            order.setTotalPrice(totalPrice);
+
+            Order savedOrder = orderRepository.save(order);
+            log.info("Order created successfully with ID: {}", savedOrder.getOrderId());
+
+            return mapToOrderResponse(savedOrder);
+
+        } catch (Exception e) {
+            log.error("Failed to create order for user: {}, item: {}, quantity: {}",
+                    request.getUserId(), request.getItemId(), request.getQuantity(), e);
+            throw new RuntimeException("Failed to create order: " + e.getMessage(), e);
         }
-
-        // Calculate total price (for now, using a simple calculation)
-        // In a real application, you would get the price from the product catalog
-        // service
-        BigDecimal unitPrice = BigDecimal.valueOf(10.00); // Placeholder price
-        BigDecimal totalPrice = unitPrice.multiply(BigDecimal.valueOf(request.getQuantity()));
-
-        // Apply promotion if available - commented out since promotion service is not
-        // implemented yet
-        // BigDecimal discount = promotionServiceClient.applyPromotion(
-        // request.getUserId(), request.getItemId(), request.getQuantity());
-        // totalPrice = totalPrice.subtract(discount);
-
-        // Create and save the order
-        Order order = new Order();
-        order.setUserId(request.getUserId());
-        order.setItemId(request.getItemId());
-        order.setQuantity(request.getQuantity());
-        order.setTotalPrice(totalPrice);
-
-        Order savedOrder = orderRepository.save(order);
-        log.info("Order created successfully with ID: {}", savedOrder.getOrderId());
-
-        return mapToOrderResponse(savedOrder);
     }
 
     public Optional<OrderResponse> getOrder(Long orderId) {

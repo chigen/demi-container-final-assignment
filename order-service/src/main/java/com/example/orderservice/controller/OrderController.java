@@ -31,9 +31,12 @@ public class OrderController {
         try {
             OrderResponse response = orderService.createOrder(request);
             return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.error("Failed to create order", e);
+        } catch (RuntimeException e) {
+            log.error("Failed to create order: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            log.error("Unexpected error while creating order", e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 

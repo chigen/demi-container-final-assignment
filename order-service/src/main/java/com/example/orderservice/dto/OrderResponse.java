@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 public class OrderResponse {
     private Long orderId;
     private Long userId;
-    private Long itemId;
+    private String itemId;
     private Integer quantity;
     private BigDecimal totalPrice;
     private LocalDateTime createdAt;
@@ -16,7 +16,7 @@ public class OrderResponse {
     public OrderResponse() {
     }
 
-    public OrderResponse(Long orderId, Long userId, Long itemId, Integer quantity,
+    public OrderResponse(Long orderId, Long userId, String itemId, Integer quantity,
             BigDecimal totalPrice, LocalDateTime createdAt, String status) {
         this.orderId = orderId;
         this.userId = userId;
@@ -44,11 +44,11 @@ public class OrderResponse {
         this.userId = userId;
     }
 
-    public Long getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(Long itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 

@@ -45,6 +45,20 @@ management:
     health:
       show-details: always
 
+# Service communication configuration
+inventory:
+  service:
+    url: http://localhost:8081
+
+# Feign client configuration
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 10000
+        loggerLevel: FULL
+
 logging:
   level:
     com.example.orderservice: DEBUG

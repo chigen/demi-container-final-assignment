@@ -1,14 +1,15 @@
 package com.example.orderservice.dto;
 
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public class CreateOrderRequest {
     @NotNull(message = "User ID is required")
     private Long userId;
 
-    @NotNull(message = "Item ID is required")
-    private Long itemId;
+    @NotBlank(message = "Item ID is required")
+    private String itemId;
 
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
@@ -18,7 +19,7 @@ public class CreateOrderRequest {
     public CreateOrderRequest() {
     }
 
-    public CreateOrderRequest(Long userId, Long itemId, Integer quantity) {
+    public CreateOrderRequest(Long userId, String itemId, Integer quantity) {
         this.userId = userId;
         this.itemId = itemId;
         this.quantity = quantity;
@@ -33,11 +34,11 @@ public class CreateOrderRequest {
         this.userId = userId;
     }
 
-    public Long getItemId() {
+    public String getItemId() {
         return itemId;
     }
 
-    public void setItemId(Long itemId) {
+    public void setItemId(String itemId) {
         this.itemId = itemId;
     }
 

@@ -18,7 +18,7 @@ This is the Order Service component of the order processing system. It handles o
   ```json
   {
     "userId": 1,
-    "itemId": 1,
+    "itemId": "ITEM001",
     "quantity": 2
   }
   ```
@@ -27,7 +27,7 @@ This is the Order Service component of the order processing system. It handles o
   {
     "orderId": 1,
     "userId": 1,
-    "itemId": 1,
+    "itemId": "ITEM001",
     "quantity": 2,
     "totalPrice": 20.00,
     "createdAt": "2024-01-01T10:00:00",

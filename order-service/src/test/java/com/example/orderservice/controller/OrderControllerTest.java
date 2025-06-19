@@ -31,11 +31,11 @@ class OrderControllerTest {
 
     @Test
     void createOrder_success() throws Exception {
-        CreateOrderRequest request = new CreateOrderRequest(1L, 2L, 3);
+        CreateOrderRequest request = new CreateOrderRequest(1L, "ITEM001", 3);
         OrderResponse response = new OrderResponse();
         response.setOrderId(10L);
         response.setUserId(1L);
-        response.setItemId(2L);
+        response.setItemId("ITEM001");
         response.setQuantity(3);
         response.setTotalPrice(BigDecimal.valueOf(30.00));
         response.setCreatedAt(LocalDateTime.now());
@@ -48,7 +48,7 @@ class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.orderId").value(10L))
                 .andExpect(jsonPath("$.userId").value(1L))
-                .andExpect(jsonPath("$.itemId").value(2L))
+                .andExpect(jsonPath("$.itemId").value("ITEM001"))
                 .andExpect(jsonPath("$.quantity").value(3))
                 .andExpect(jsonPath("$.status").value("CREATED"));
     }
@@ -58,7 +58,7 @@ class OrderControllerTest {
         OrderResponse response = new OrderResponse();
         response.setOrderId(10L);
         response.setUserId(1L);
-        response.setItemId(2L);
+        response.setItemId("ITEM001");
         response.setQuantity(3);
         response.setTotalPrice(BigDecimal.valueOf(30.00));
         response.setCreatedAt(LocalDateTime.now());
