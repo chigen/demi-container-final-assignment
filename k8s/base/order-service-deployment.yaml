@@ -25,7 +25,7 @@ spec:
       # - name: ghcr-token
       containers:
       - name: order-service
-        image: ghcr.io/chigen/order-service:cf369b3c
+        image: ghcr.io/chigen/order-service:18fb7d58
         ports:
         - containerPort: 8080
         env:
