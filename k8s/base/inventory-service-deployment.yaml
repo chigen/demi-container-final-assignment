@@ -20,8 +20,8 @@ spec:
       labels:
         app: inventory-service
     spec:
-      imagePullSecrets:
-      - name: ghcr-token
+      # imagePullSecrets:
+      # - name: ghcr-token
       containers:
       - name: inventory-service
         image: ghcr.io/chigen/inventory-service:b8fddbc0

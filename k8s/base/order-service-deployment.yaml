@@ -20,8 +20,8 @@ spec:
       labels:
         app: order-service
     spec:
-      imagePullSecrets:
-      - name: ghcr-token
+      # imagePullSecrets:
+      # - name: ghcr-token
       containers:
       - name: order-service
         image: ghcr.io/chigen/order-service:b8fddbc0

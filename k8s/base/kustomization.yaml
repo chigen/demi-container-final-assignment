@@ -8,7 +8,7 @@ resources:
   - order-service-deployment.yaml
   - order-service-service.yaml
   - configmap.yaml
-  - ghcr-secret.yaml
+  # - ghcr-secret.yaml
   # - user-service-deployment.yaml
   # - user-service-service.yaml
   # - product-service-deployment.yaml
