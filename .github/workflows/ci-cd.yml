@@ -140,15 +140,24 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Debug AWS credentials
+        run: |
+          echo "Checking if AWS credentials are configured..."
+          aws sts get-caller-identity || echo "AWS credentials not configured properly"
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
       - name: Deploy to EKS
         run: |
+          # Show current context
+          kubectl config current-context
+          kubectl cluster-info
+          
           # Apply k8s manifests
           kubectl apply -k k8s/base
           
@@ -159,6 +168,7 @@ jobs:
           # Show deployment status
           kubectl get pods -n demi
           kubectl get services -n demi
+          kubectl get deployments -n demi
 
   security-scan:
     name: Security Scan
