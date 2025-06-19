@@ -1,40 +1,30 @@
-package com.example.orderservice.model;
+package com.example.orderservice.dto;
 
-import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "orders")
-public class Order {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class OrderResponse {
     private Long orderId;
-
-    @Column(nullable = false)
     private Long userId;
-
-    @Column(nullable = false)
     private Long itemId;
-
-    @Column(nullable = false)
     private Integer quantity;
-
-    @Column(nullable = false)
     private BigDecimal totalPrice;
-
-    @Column(nullable = false)
     private LocalDateTime createdAt;
+    private String status;
 
     // Constructors
-    public Order() {
+    public OrderResponse() {
     }
 
-    public Order(Long userId, Long itemId, Integer quantity, BigDecimal totalPrice) {
+    public OrderResponse(Long orderId, Long userId, Long itemId, Integer quantity,
+            BigDecimal totalPrice, LocalDateTime createdAt, String status) {
+        this.orderId = orderId;
         this.userId = userId;
         this.itemId = itemId;
         this.quantity = quantity;
         this.totalPrice = totalPrice;
+        this.createdAt = createdAt;
+        this.status = status;
     }
 
     // Getters and Setters
@@ -86,8 +76,11 @@ public class Order {
         this.createdAt = createdAt;
     }
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
