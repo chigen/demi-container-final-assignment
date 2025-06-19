@@ -90,20 +90,26 @@ jobs:
       - name: Build and push inventory-service image
         uses: docker/build-push-action@v5
         with:
-          context: ./inventory-service
+          context: .
+          file: ./inventory-service/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.INVENTORY_TAG }}
+          tags: |
+            ${{ steps.meta.outputs.INVENTORY_TAG }}
+            ${{ steps.meta.outputs.INVENTORY_LATEST }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Build and push order-service image
         uses: docker/build-push-action@v5
         with:
-          context: ./order-service
+          context: .
+          file: ./order-service/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ steps.meta.outputs.ORDER_TAG }}
+          tags: |
+            ${{ steps.meta.outputs.ORDER_TAG }}
+            ${{ steps.meta.outputs.ORDER_LATEST }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
