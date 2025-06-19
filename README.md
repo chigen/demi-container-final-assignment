@@ -71,3 +71,7 @@ This project about a microservice-based architecture for a simple e-commerce sys
 ## Deploy process
 
 code changes (github) -> build image (ghcr.io) -> update k8s deployment (manifest) -> push deployment changes to git (git repo) -> deploy into k8s (eks cluster)
+
+## Services port
+- Order service: 8080
+- Inventory service: 8081
