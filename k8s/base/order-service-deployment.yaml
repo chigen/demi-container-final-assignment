@@ -10,11 +10,18 @@ spec:
   selector:
     matchLabels:
       app: order-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   template:
     metadata:
       labels:
         app: order-service
     spec:
+      imagePullSecrets:
+      - name: ghcr-token
       containers:
       - name: order-service
         image: ghcr.io/chigen/demi-container-final-assignment/order-service:3f60fa72484f2fb4f10a7ad5eaac63e4c530f82b
@@ -23,6 +30,8 @@ spec:
         env:
         - name: SPRING_PROFILES_ACTIVE
           value: "default"
+        - name: SERVER_PORT
+          value: "8080"
         - name: SERVICE_INVENTORY_URL
           valueFrom:
             configMapKeyRef:
@@ -41,9 +50,13 @@ spec:
             port: 8080
           initialDelaySeconds: 30
           periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
         readinessProbe:
           httpGet:
             path: /actuator/health
             port: 8080
           initialDelaySeconds: 5
-          periodSeconds: 5 
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3 
