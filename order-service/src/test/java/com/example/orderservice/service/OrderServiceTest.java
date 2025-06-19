@@ -35,7 +35,7 @@ class OrderServiceTest {
 
     @Test
     void createOrder_success() {
-        CreateOrderRequest request = new CreateOrderRequest(1L, 2L, 3);
+        CreateOrderRequest request = new CreateOrderRequest(1L, "ITEM001", 3);
         ReserveInventoryResponse inventoryResponse = new ReserveInventoryResponse();
         inventoryResponse.setSuccess(true);
         when(inventoryServiceClient.reserveInventory(any(ReserveInventoryRequest.class))).thenReturn(inventoryResponse);
@@ -48,7 +48,7 @@ class OrderServiceTest {
         var response = orderService.createOrder(request);
         assertNotNull(response);
         assertEquals(1L, response.getUserId());
-        assertEquals(2L, response.getItemId());
+        assertEquals("ITEM001", response.getItemId());
         assertEquals(3, response.getQuantity());
         assertEquals(BigDecimal.valueOf(30.00), response.getTotalPrice());
         assertEquals(100L, response.getOrderId());
@@ -57,7 +57,7 @@ class OrderServiceTest {
 
     @Test
     void createOrder_inventoryFailure() {
-        CreateOrderRequest request = new CreateOrderRequest(1L, 2L, 3);
+        CreateOrderRequest request = new CreateOrderRequest(1L, "ITEM001", 3);
         ReserveInventoryResponse inventoryResponse = new ReserveInventoryResponse();
         inventoryResponse.setSuccess(false);
         inventoryResponse.setMessage("Out of stock");
