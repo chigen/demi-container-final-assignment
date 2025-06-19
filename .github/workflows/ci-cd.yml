@@ -90,7 +90,7 @@ jobs:
       - name: Build and push inventory-service image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./inventory-service
           file: ./inventory-service/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
@@ -103,7 +103,7 @@ jobs:
       - name: Build and push order-service image
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./order-service
           file: ./order-service/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true

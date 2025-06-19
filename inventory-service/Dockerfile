@@ -2,8 +2,8 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 
 WORKDIR /app
 
-# Copy only the inventory-service module
-COPY inventory-service/ .
+# Copy the inventory-service module files
+COPY . .
 
 # Download dependencies and build the application
 RUN mvn clean package -DskipTests
