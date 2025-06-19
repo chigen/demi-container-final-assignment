@@ -6,6 +6,11 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: write    # allow to write to repository content (for updating manifest)
+  packages: write    # allow to push to Container Registry
+  actions: read      # allow to read actions information
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
@@ -13,10 +18,34 @@ env:
   EKS_CLUSTER_NAME: order-processing-cluster
 
 jobs:
-  build-and-push:
+  test:
+    name: Tests & Static Analysis
     runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Run tests
+        run: mvn test
+
+      - name: Run integration tests
+        run: mvn verify -DskipTests=false
+
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
     permissions:
-      contents: read
+      contents: write
       packages: write
 
     steps:
@@ -33,6 +62,9 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to the Container registry
         uses: docker/login-action@v3
         with:
@@ -40,36 +72,99 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker images
+      - name: Generate image tags
+        id: meta
         run: |
-          for service in inventory-service; do
-            docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }} -f $service/Dockerfile .
-            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}
-          done
+          OWNER_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          echo "INVENTORY_TAG=ghcr.io/${OWNER_LOWER}/inventory-service:${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
+          echo "ORDER_TAG=ghcr.io/${OWNER_LOWER}/order-service:${GITHUB_SHA::8}" >> $GITHUB_OUTPUT
 
-  # deploy:
-  #   needs: build-and-push
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
+      - name: Debug GitHub context
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Owner: ${{ github.repository_owner }}"
+          echo "SHA: ${{ github.sha }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "Actor: ${{ github.actor }}"
 
-  #     - name: Configure AWS credentials
-  #       uses: aws-actions/configure-aws-credentials@v1
-  #       with:
-  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  #         aws-region: ${{ env.AWS_REGION }}
+      - name: Build and push inventory-service image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./inventory-service
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.INVENTORY_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  #     - name: Update kubeconfig
-  #       run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+      - name: Build and push order-service image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./order-service
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.ORDER_TAG }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  #     - name: Deploy to EKS
-  #       run: |
-  #         # Update image tags in k8s manifests
-  #         for service in inventory-service; do
-  #           sed -i "s|image:.*$service.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/$service:${{ github.sha }}|" k8s/base/$service-deployment.yaml
-  #         done
+      - name: Update Kubernetes manifests
+        run: |
+          sed -i "s|image:.*inventory-service.*|image: ${{ steps.meta.outputs.INVENTORY_TAG }}|g" k8s/base/inventory-service-deployment.yaml
+          sed -i "s|image:.*order-service.*|image: ${{ steps.meta.outputs.ORDER_TAG }}|g" k8s/base/order-service-deployment.yaml
+
+      - name: Commit and push updated manifests
+        run: |
+          git config --local user.email "1173279688@qq.com"
+          git config --local user.name "chigen"
+          git add k8s/
+          git commit -m "Update image tags to ${GITHUB_SHA::8}" || exit 0
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push
+
+  deploy:
+    name: Deploy to EKS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+
+      - name: Deploy to EKS
+        run: |
+          # Apply k8s manifests
+          kubectl apply -k k8s/base
           
-  #         # Apply k8s manifests
-  #         kubectl apply -k k8s/base 
+          # Wait for deployments to be ready
+          kubectl rollout status deployment/inventory-service -n demi --timeout=300s
+          kubectl rollout status deployment/order-service -n demi --timeout=300s
+          
+          # Show deployment status
+          kubectl get pods -n demi
+          kubectl get services -n demi
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '0'
