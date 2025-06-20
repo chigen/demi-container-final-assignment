@@ -75,3 +75,30 @@ code changes (github) -> build image (ghcr.io) -> update k8s deployment (manifes
 ## Services port
 - Order service: 8080
 - Inventory service: 8081
+
+## Security Architecture
+
+### Access Control
+- **Order Service**: Exposed to external users through Ingress (nginx)
+  - Accessible endpoints: `/order/*`, `/actuator/health`
+  - Service type: ClusterIP (accessed via Ingress)
+
+- **Inventory Service**: Internal service only
+  - Not accessible from outside the cluster
+  - Only accessible by Order Service internally
+  - Service type: ClusterIP
+  - Protected by NetworkPolicy
+
+### Network Security
+- NetworkPolicy restricts inventory-service access to only order-service pods
+- Ingress controller (nginx) handles external traffic routing
+- Internal service communication uses cluster DNS names
+
+### Testing Access Control
+```bash
+# Test external access (should work)
+curl -X POST http://<ingress-ip>/order -H "Content-Type: application/json" -d '{"userId": 1, "itemId": "ITEM001", "quantity": 2}'
+
+# Test internal service access (should fail from outside)
+curl -X GET http://<ingress-ip>/inventory/ITEM001  # This should return 404
+```

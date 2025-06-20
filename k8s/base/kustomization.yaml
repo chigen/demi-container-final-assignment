@@ -8,6 +8,8 @@ resources:
   - order-service-deployment.yaml
   - order-service-service.yaml
   - configmap.yaml
+  - ingress.yaml
+  - network-policy.yaml
   # - ghcr-secret.yaml
   # - user-service-deployment.yaml
   # - user-service-service.yaml
