@@ -18,3 +18,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+
+# argocd
+# Admin
+# C1DsKmPq90SXH-WV 
